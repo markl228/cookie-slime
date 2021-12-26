@@ -27,8 +27,12 @@ class Board:
         for y in range(self.height):
             for x in range(self.width):
                 # clos[self.board[y][x]]
+
+                Grass(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
+                    groups[self.board[y][x]])
                 Box(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
                     groups[self.board[y][x]])
+
                 pygame.draw.rect(screen, pygame.Color('white'), (
                     x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
                     self.cell_size), 1)
@@ -57,21 +61,34 @@ class Board:
 
 
 class Box(pygame.sprite.Sprite):
-    image = load_image('grass.png')
-    grass = load_image('box.png')
+    image = load_image('box.png')
 
     def __init__(self, x, y, a, *group):
         super().__init__(*group)
         self.image = Box.image
-        self.grass = Box.grass
         self.rect = self.image.get_rect()
         self.image = pygame.transform.scale(self.image, (a, a))
-        self.grass = pygame.transform.scale(self.grass, (a, a))
         self.rect.x = x
         self.rect.y = y
 
     def update(self, *args):
-        self.image = self.grass
+        self.image = Grass.image
+
+
+class Grass(pygame.sprite.Sprite):
+    image = load_image('grass.png')
+
+    def __init__(self, x, y, a, *group):
+        super().__init__(*group)
+        self.image = Grass.image
+        self.rect = self.image.get_rect()
+        self.image = pygame.transform.scale(self.image, (a, a))
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self, *args):
+        self.image = Box.image
+
 
 
 def main():
@@ -91,11 +108,12 @@ def main():
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 board.get_click(event.pos)
+                new_sprites.update(event)
                 all_sprites.update(event)
         screen.fill((0, 0, 0))
         all_sprites.draw(screen)
         new_sprites.draw(screen)
-        board.render(screen, all_sprites, new_sprites)
+        board.render(screen, new_sprites, all_sprites)
         pygame.display.flip()
     pygame.quit()
 
