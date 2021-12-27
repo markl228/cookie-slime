@@ -3,6 +3,13 @@ import sys
 import os
 
 
+GRASS = 'grass.png'
+BOX = 'box.png'
+DICT_OF_SP = {0: GRASS,
+              1: BOX}
+
+
+
 def load_image(name, colorkey=None):
     fullname = os.path.join('data', name)
     # если файл не существует, то выходим
@@ -27,11 +34,12 @@ class Board:
         for y in range(self.height):
             for x in range(self.width):
                 # clos[self.board[y][x]]
-
-                Grass(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
-                    groups[self.board[y][x]])
-                Box(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
-                    groups[self.board[y][x]])
+                if self.board[y][x] == 0:
+                    Grass(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[1],
+                        groups[self.board[y][x]])
+                else:
+                    Box(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[0],
+                        groups[self.board[y][x]])
 
                 pygame.draw.rect(screen, pygame.Color('white'), (
                     x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
@@ -63,11 +71,12 @@ class Board:
 class Box(pygame.sprite.Sprite):
     image = load_image('box.png')
 
-    def __init__(self, x, y, a, *group):
+    def __init__(self, x, y, a, gp_sp, *group):
         super().__init__(*group)
         self.image = Box.image
         self.rect = self.image.get_rect()
-        self.image = pygame.transform.scale(self.image, (a, a))
+
+        self.image = pygame.transform.scale(Box.image, (a, a))
         self.rect.x = x
         self.rect.y = y
 
@@ -90,7 +99,6 @@ class Grass(pygame.sprite.Sprite):
         self.image = Box.image
 
 
-
 def main():
     pygame.init()
     size = 500, 500
@@ -98,8 +106,8 @@ def main():
     pygame.display.set_caption('Координаты клетки')
     board = Board(16, 16)
 
-    all_sprites = pygame.sprite.Group()
-    new_sprites = pygame.sprite.Group()
+    grass_sp = pygame.sprite.Group()
+    box_sp = pygame.sprite.Group()
 
     running = True
     while running:
@@ -108,12 +116,10 @@ def main():
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 board.get_click(event.pos)
-                new_sprites.update(event)
-                all_sprites.update(event)
         screen.fill((0, 0, 0))
-        all_sprites.draw(screen)
-        new_sprites.draw(screen)
-        board.render(screen, new_sprites, all_sprites)
+        grass_sp.draw(screen)
+        box_sp.draw(screen)
+        board.render(screen, box_sp, grass_sp)
         pygame.display.flip()
     pygame.quit()
 
