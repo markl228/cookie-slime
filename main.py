@@ -107,9 +107,17 @@ def main():
     board = Board(16, 16)
 
     grass_sp = pygame.sprite.Group()
-    box_sp = pygame.sprite.Group()
+    grass = pygame.sprite.Sprite()
+    grass.image = load_image(GRASS)
+    grass_sp.add(grass)
 
-    running = True
+    box_sp = pygame.sprite.Group()
+    box = pygame.sprite.Sprite()
+    box.image = load_image(BOX)
+    box_sp.add(BOX)
+
+
+running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
