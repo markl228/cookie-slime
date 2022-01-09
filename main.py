@@ -134,6 +134,18 @@ class ChestMenu(CutPict):
         self.image = pygame.transform.scale(self.image, (80, 80))
 
 
+class Сonveyor(pygame.sprite.Sprite):
+    image = load_image('Сonveyor.png')
+
+    def __init__(self, x, y, a, *group):
+        super().__init__(*group)
+        self.image = Grass.image
+        self.rect = self.image.get_rect()
+        self.image = pygame.transform.scale(self.image, (a, a))
+        self.rect.x = x
+        self.rect.y = y
+
+
 class Box(pygame.sprite.Sprite):
     image = load_image('bake.png')
 
