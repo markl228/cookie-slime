@@ -181,7 +181,7 @@ def main():
     pygame.init()
     size = 500, 560
     screen = pygame.display.set_mode(size)
-    pygame.display.set_caption('Координаты клетки')
+    pygame.display.set_caption('Cookie-slime')
     board = Board(14, 14)
     clock = pygame.time.Clock()
     mouse = 1
