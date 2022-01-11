@@ -38,13 +38,13 @@ class Board:
             for x in range(self.width):
                 # clos[self.board[y][x]]
                 if self.board[y][x] == 0:
-                    Grass(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[1],
+                    Grass(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[0],
                           groups[self.board[y][x]])
                 elif self.board[y][x] == 1:
                     Box(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[0],
                         groups[self.board[y][x]])
                 elif self.board[y][x] == 2:
-                    Conveyor(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[2],
+                    Conveyor(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[0],
                              groups[self.board[y][x]])
 
                 pygame.draw.rect(screen, pygame.Color('white'), (
