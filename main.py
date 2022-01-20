@@ -6,6 +6,7 @@ GRASS_SP = pygame.sprite.Group()
 BOX_SP = pygame.sprite.Group()
 CUT_SP = pygame.sprite.Group()
 CONVEYOR_SP = pygame.sprite.Group()
+CHEST_GP = pygame.sprite.Group()
 
 INTETF_POS = {(0, 14): 'Bake', (1, 14): 'Bake', (0, 15): 'Bake', (1, 15): 'Bake',
               (2, 14): 'Conveyor', (3, 14): 'Conveyor', (2, 15): 'Conveyor', (3, 15): 'Conveyor',
@@ -34,17 +35,21 @@ class Board:
         self.cell_size = 34
 
     def render(self, screen, *groups):
+        print(groups)
         for y in range(self.height):
             for x in range(self.width):
                 # clos[self.board[y][x]]
                 if self.board[y][x] == 0:
-                    Grass(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[1],
+                    Grass(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[0],
                           groups[self.board[y][x]])
                 elif self.board[y][x] == 1:
                     Box(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[0],
                         groups[self.board[y][x]])
                 elif self.board[y][x] == 2:
-                    Conveyor(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[2],
+                    Conveyor(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[0],
+                             groups[self.board[y][x]])
+                elif self.board[y][x] == 3:
+                    Chest(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[0],
                              groups[self.board[y][x]])
 
                 pygame.draw.rect(screen, pygame.Color('white'), (
@@ -152,6 +157,19 @@ class Conveyor(pygame.sprite.Sprite):
         self.rect.y = y
 
 
+class Chest(pygame.sprite.Sprite):
+    image = load_image('chest.png')
+
+    def __init__(self, x, y, a, *group):
+        super().__init__(*group)
+        self.image = Chest.image
+        self.rect = self.image.get_rect()
+
+        self.image = pygame.transform.scale(Chest.image, (a, a))
+        self.rect.x = x
+        self.rect.y = y
+
+
 class Box(pygame.sprite.Sprite):
     image = load_image('bake.png')
 
@@ -181,7 +199,7 @@ def main():
     pygame.init()
     size = 500, 560
     screen = pygame.display.set_mode(size)
-    pygame.display.set_caption('Координаты клетки')
+    pygame.display.set_caption('Cookie-slime')
     board = Board(14, 14)
     clock = pygame.time.Clock()
     mouse = 1
@@ -197,14 +215,14 @@ def main():
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = board.get_click(mouse, event.pos)
-                print(mouse)
         screen.fill((0, 0, 0))
         CUT_SP.draw(screen)
         CUT_SP.update()
         CONVEYOR_SP.draw(screen)
         GRASS_SP.draw(screen)
         BOX_SP.draw(screen)
-        board.render(screen, BOX_SP, GRASS_SP, CONVEYOR_SP)
+        CHEST_GP.draw(screen)
+        board.render(screen, BOX_SP, GRASS_SP, CONVEYOR_SP, CHEST_GP)
         pygame.display.flip()
         clock.tick(50)
     pygame.quit()
