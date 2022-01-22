@@ -2,11 +2,6 @@ import pygame
 import sys
 import os
 
-GRASS_SP = pygame.sprite.Group()
-BOX_SP = pygame.sprite.Group()
-CUT_SP = pygame.sprite.Group()
-CONVEYOR_SP = pygame.sprite.Group()
-
 INTETF_POS = {(0, 14): 'Bake', (1, 14): 'Bake', (0, 15): 'Bake', (1, 15): 'Bake',
               (2, 14): 'Conveyor', (3, 14): 'Conveyor', (2, 15): 'Conveyor', (3, 15): 'Conveyor',
               (4, 14): 'Chest', (5, 14): 'Chest', (4, 15): 'Chest', (5, 15): 'Chest'}
@@ -36,7 +31,6 @@ class Board:
     def render(self, screen, *groups):
         for y in range(self.height):
             for x in range(self.width):
-                # clos[self.board[y][x]]
                 if self.board[y][x] == 0:
                     Grass(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[1],
                           groups[self.board[y][x]])
@@ -46,6 +40,9 @@ class Board:
                 elif self.board[y][x] == 2:
                     Conveyor(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[2],
                              groups[self.board[y][x]])
+                elif self.board[y][x] == 3:
+                    Chest(x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size, groups[2],
+                          groups[self.board[y][x]])
 
                 pygame.draw.rect(screen, pygame.Color('white'), (
                     x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
@@ -54,6 +51,13 @@ class Board:
         for i in range(7):
             pygame.draw.rect(screen, pygame.Color(128, 128, 128), (total, 485, 67, 67), 2)
             total += 68
+
+    def draw_setka(self, screen):
+        for y in range(self.height):
+            for x in range(self.width):
+                pygame.draw.rect(screen, pygame.Color('white'), (
+                    x * self.cell_size + self.left, y * self.cell_size + self.top, self.cell_size,
+                    self.cell_size), 1)
 
     def set_view(self, left, top, cell_size):
         self.left = left
@@ -89,8 +93,8 @@ class Board:
 
 
 class CutPict(pygame.sprite.Sprite):
-    def __init__(self, sheet, columns, rows, x, y):
-        super().__init__(CUT_SP)
+    def __init__(self, sheet, columns, rows, x, y, gp):
+        super().__init__(gp)
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
@@ -111,8 +115,8 @@ class CutPict(pygame.sprite.Sprite):
 
 
 class ConveyorMenu(CutPict):
-    def __init__(self, sheet, columns, rows, x, y):
-        super().__init__(sheet, columns, rows, x, y)
+    def __init__(self, sheet, columns, rows, x, y, gp):
+        super().__init__(sheet, columns, rows, x, y, gp)
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
@@ -126,8 +130,8 @@ class ConveyorMenu(CutPict):
 
 
 class ChestMenu(CutPict):
-    def __init__(self, sheet, columns, rows, x, y):
-        super().__init__(sheet, columns, rows, x, y)
+    def __init__(self, sheet, columns, rows, x, y, gp):
+        super().__init__(sheet, columns, rows, x, y, gp)
         self.frames = []
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
@@ -177,6 +181,18 @@ class Grass(pygame.sprite.Sprite):
         self.rect.y = y
 
 
+class Chest(pygame.sprite.Sprite):
+    image = load_image('chest.png')
+
+    def __init__(self, x, y, a, *group):
+        super().__init__(*group)
+        self.image = Chest.image
+        self.rect = self.image.get_rect()
+        self.image = pygame.transform.scale(self.image, (a, a))
+        self.rect.x = x
+        self.rect.y = y
+
+
 def main():
     pygame.init()
     size = 500, 560
@@ -186,9 +202,10 @@ def main():
     clock = pygame.time.Clock()
     mouse = 1
 
-    CutPict(load_image("mcblocks.png"), 18, 36, 5, 480)
-    ConveyorMenu(load_image("mcblocks.png"), 18, 36, 72, 480)
-    ChestMenu(load_image("mcblocks.png"), 18, 36, 140, 480)
+    cut_sp = pygame.sprite.Group()
+    CutPict(load_image("mcblocks.png"), 18, 36, 5, 480, cut_sp)
+    ConveyorMenu(load_image("mcblocks.png"), 18, 36, 72, 480, cut_sp)
+    ChestMenu(load_image("mcblocks.png"), 18, 36, 140, 480, cut_sp)
 
     running = True
     while running:
@@ -197,14 +214,23 @@ def main():
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = board.get_click(mouse, event.pos)
-                print(mouse)
+
         screen.fill((0, 0, 0))
-        CUT_SP.draw(screen)
-        CUT_SP.update()
-        CONVEYOR_SP.draw(screen)
-        GRASS_SP.draw(screen)
-        BOX_SP.draw(screen)
-        board.render(screen, BOX_SP, GRASS_SP, CONVEYOR_SP)
+
+        grass_sp = pygame.sprite.Group()
+        box_sp = pygame.sprite.Group()
+
+        conveyor_sp = pygame.sprite.Group()
+        chest_sp = pygame.sprite.Group()
+        board.render(screen, box_sp, grass_sp, conveyor_sp, chest_sp)
+
+        cut_sp.draw(screen)
+        cut_sp.update()
+        conveyor_sp.draw(screen)
+        grass_sp.draw(screen)
+        box_sp.draw(screen)
+        chest_sp.draw(screen)
+        board.draw_setka(screen)
         pygame.display.flip()
         clock.tick(50)
     pygame.quit()
